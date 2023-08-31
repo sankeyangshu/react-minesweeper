@@ -9,7 +9,7 @@ export interface settingsStoreType {
 }
 
 export const useSettingStore = create<settingsStoreType>()((set) => ({
-  isDark: false, // 深色模式 切换暗黑模式
+  isDark: true, // 深色模式 切换暗黑模式
 
   // 设置暗黑模式
   setThemeDark: (value: boolean) => set({ isDark: value }),
