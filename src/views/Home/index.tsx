@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useToggle } from 'ahooks';
 import { Icon } from '@iconify/react';
 import './index.less';
 
@@ -12,8 +13,10 @@ interface blockStateType {
 }
 
 const Home = () => {
-  const WIDTH = 5;
-  const HIGHT = 5;
+  // 地图的宽度
+  const WIDTH = 10;
+  // 地图的高度
+  const HIGHT = 10;
 
   const [state, setState] = useState(
     Array.from({ length: HIGHT }, (_, y) =>
@@ -101,6 +104,7 @@ const Home = () => {
     });
   };
 
+  // 方块是否被翻转
   const expendZero = (block: blockStateType) => {
     if (block.adjacentBombs) return;
 
@@ -121,10 +125,28 @@ const Home = () => {
       generateBombs(initState);
       setBombGenerated(true);
     }
-  }, []);
+  }, [bombGenerated]);
 
   // 是否是开发模式
-  const isDev = false;
+  const [isDev, { toggle: toggleDev }] = useToggle();
+
+  // 重新开始游戏
+  const resetGame = () => {
+    setState(
+      Array.from({ length: HIGHT }, (_, y) =>
+        Array.from(
+          { length: WIDTH },
+          (_, x): blockStateType => ({
+            x,
+            y,
+            adjacentBombs: 0,
+            revealed: false,
+          })
+        )
+      )
+    );
+    setBombGenerated(false);
+  };
 
   // 右键点击事件
   const onRightClick = (block: blockStateType) => {
@@ -139,6 +161,7 @@ const Home = () => {
     checkGameState();
   };
 
+  // 左键点击事件
   const onClickBtn = (block: blockStateType) => {
     // 创建一个新的block对象，将revealed属性设置为true
     const updatedBlock = { ...block, revealed: true };
@@ -155,6 +178,7 @@ const Home = () => {
     checkGameState();
   };
 
+  // 获取方块的样式
   const getBlockClass = (block: blockStateType) => {
     if (block.flagged) {
       return 'bg-gray-500/10';
@@ -182,7 +206,7 @@ const Home = () => {
 
   return (
     <>
-      Minesweepr
+      扫雷小游戏
       <div className="p5">
         {state.map((row, y) => (
           <div key={y} className="flex justify-center items-center">
@@ -211,6 +235,14 @@ const Home = () => {
             ))}
           </div>
         ))}
+      </div>
+      <div className="flex flex-gap1 justify-center p4">
+        <button className="btn" onClick={resetGame}>
+          新游戏
+        </button>
+        <button className="btn" onClick={toggleDev}>
+          开发者模式
+        </button>
       </div>
     </>
   );
