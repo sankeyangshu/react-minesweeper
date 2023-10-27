@@ -1,0 +1,48 @@
+name: Deploy
+
+on:
+  # 监听push操作
+  push:
+    branches:
+      - master # 这里只配置了master分支，所以只有推送master分支才会触发以下任务
+
+jobs:
+  # 任务ID
+  build-and-deploy:
+    # 运行环境
+    runs-on: ubuntu-latest
+    # 步骤
+    steps:
+      # 官方action，将代码拉取到虚拟机
+      - name: Checkout  ️
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # 安装 pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      # 设置node的版本
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: pnpm
+
+      # 安装依赖、打包
+      - name: Install and Build
+        run: |
+          pnpm install
+          pnpm build
+
+      - name: Deploy # 部署
+        # 使用别人写好的 actions去部署（将打包文件部署到指定分支上）
+        uses: JamesIves/github-pages-deploy-action@v4.3.3
+        with:
+          # 部署后提交到那个分支
+          branch: gh-pages
+          # 填写打包好的目录名称路径，本项目配置在根目录
+          folder: dist
